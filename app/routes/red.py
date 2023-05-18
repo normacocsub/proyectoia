@@ -5,6 +5,7 @@ from app.utils.file import cargar_archivo, cargar_imagen
 from app.utils.red import train_red, iniciar_red, simular
 from app.schemas import RedModel
 from app.config import pesos, umbrales
+from app.utils.constantes import find_object
 
 
 
@@ -29,7 +30,7 @@ def simular_red(file: UploadFile = File(...)):
     umbrales_red = umbrales.cargar_umbrales()
     salidas = simular(matriz_entradas, pesos_red, umbrales_red, len(matriz_entradas), total_salidas, total_entradas)
     os.remove(file.filename)
-    return salidas
+    return {"salida_binaria": salidas, "objeto": find_object(next(iter(salidas)))}
 
 
 
