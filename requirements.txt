@@ -6,3 +6,6 @@ python-dotenv
 numpy
 pillow
 python-multipart
+keras
+tensorflow
+websockets
