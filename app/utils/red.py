@@ -101,7 +101,9 @@ def simular_keras(contents, connected_clients):
 
     # Realizar la predicción utilizando el modelo
     predictions = model.predict(img)
+    
     predicted_class_index = np.argmax(predictions[0])
+    print(predicted_class_index)
     predicted_class = class_labels[predicted_class_index]
     #asyncio.get_event_loop().run_until_complete(send_predictions(predictions))
 
@@ -112,10 +114,10 @@ async def send_predictions(predictions, connected_clients):
     for client in connected_clients:
         await client.send_text(predictions)
 
-def entrenar_keras():
-    model, train_data, test_data = iniciar_keras()
+async def entrenar_keras(iteraciones, error_maximo, tasa_aprendizaje, websocket):
+    model, train_data, test_data = iniciar_keras(tasa_aprendizaje)
 
-    max_error = 0.01  # Error máximo deseado
+    max_error = error_maximo  # Error máximo deseado
 
     loss_values = []
     validation_loss = []
@@ -123,17 +125,17 @@ def entrenar_keras():
     best_weights = None
     best_validation_loss = float('inf')
 
-    for epoch in range(500):
+    for epoch in range(iteraciones):
         # Realizar una época de entrenamiento
         history = model.fit(train_data, epochs=1, validation_data=test_data)
 
         # Registrar las pérdidas
         loss_values.append(history.history['loss'][0])
         validation_loss.append(history.history['val_loss'][0])
-
+        json_return = json.dumps({"loss": loss_values, "loss_val": validation_loss})
+        await websocket.send_text(json_return)
         # Verificar si se alcanza el error máximo
         if validation_loss[-1] <= max_error:
-            print(validation_loss, max_error)
             break
 
         # Actualizar los mejores pesos y la mejor pérdida de validación
@@ -152,7 +154,7 @@ def entrenar_keras():
 
 
 
-def iniciar_keras():
+def iniciar_keras(tasa_aprendizaje):
     train_datagen = ImageDataGenerator(rescale=1. / 255)
     test_datagen = ImageDataGenerator(rescale=1. / 255)
 
@@ -195,7 +197,7 @@ def iniciar_keras():
     ])
 
     # tasa de aprendizaje
-    learning_rate = 0.001  # Tasa de aprendizaje deseada
+    learning_rate = tasa_aprendizaje  # Tasa de aprendizaje deseada
     optimizer = Adam(learning_rate=learning_rate)
     # Compilar el modelo
     model.compile(optimizer=optimizer, loss=custom_loss, metrics=['accuracy'])

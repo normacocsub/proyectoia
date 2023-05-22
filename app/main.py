@@ -1,10 +1,11 @@
 from app.routes.red import router as red_router
 from fastapi import FastAPI, Request, Response, UploadFile, WebSocket, File
 import websockets
-from app.utils.red import simular_keras
+from app.utils.red import simular_keras, entrenar_keras
 from io import BytesIO
 from PIL import Image
 import base64
+import json
 
 app = FastAPI()
 connected_clients = set()
@@ -35,9 +36,28 @@ async def websocket_endpoint(websocket: WebSocket):
     except websockets.exceptions.ConnectionClosed:
         connected_clients.remove(websocket)
 
+@app.websocket("/wse")
+async def websocket_entrenamiento(websocket: WebSocket):
+    await websocket.accept()
+    connected_clients.add(websocket)
+    try:
+        while True:
+            await entrenar_red(websocket)
+    except websockets.exceptions.ConnectionClosed:
+        connected_clients.remove(websocket)   
+
+async def entrenar_red(websocket: WebSocket):
+    while True:
+        message = await websocket.receive()
+        data = message["text"]
+        json_data = json.loads(data)
+        error, error_validations = await entrenar_keras(json_data['iterations'], json_data['error_maximo'], json_data['tasa_aprendizaje'], websocket)
+        await websocket.send_text(json.dumps({"loss": error,"loss_val": error_validations}))
+
 async def simular_red(websocket: WebSocket):
     while True:
         message = await websocket.receive()
+        
         data = message["text"]
 
         # Extraer el contenido base64 de los datos
