@@ -51,7 +51,7 @@ source myenv/bin/activate
 windows
 
 ```python3 -m venv myenv
-myenv\Scripts\activate.bat
+myenv\Scripts\activate
 ```
 
 Esto activará el entorno virtual y cambiará el símbolo del sistema para mostrar el nombre del entorno virtual actual.

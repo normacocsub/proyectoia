@@ -68,8 +68,7 @@ async def simular_red(websocket: WebSocket):
         # Abrir la imagen utilizando BytesIO
         image = Image.open(BytesIO(decoded_data))
 
-        # Convertir la imagen en un objeto bytes
-        image_bytes = image.tobytes()
+        
 
         # Procesar la imagen, realizar predicciones, etc.
         predictions = simular_keras(image, connected_clients)
