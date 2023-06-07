@@ -10,3 +10,8 @@ keras
 tensorflow
 websockets
 opencv-python
+pandas
+scikit-learn
+scikit-image
+torch
+torchvision
