@@ -100,7 +100,7 @@ def simular_keras(contents, connected_clients):
     img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
 
     # Preprocesar la imagen (ajustar tamaño, normalizar, etc.)
-    img = cv2.resize(img, (64, 64))
+    img = cv2.resize(img, (128, 128))
     img = img / 255.0
     img = np.expand_dims(img, axis=0)
 
@@ -219,7 +219,7 @@ def datagen_dataframe(datagen, data, labels):
         dataframe=pd.DataFrame({'image_paths': data, 'labels': labels}),
         x_col='image_paths',
         y_col='labels',
-        target_size=(64, 64),
+        target_size=(128, 128),
         batch_size=32,
         class_mode='categorical'
     )
@@ -242,7 +242,7 @@ def iniciar_keras(tasa_aprendizaje):
     test_generator = datagen_dataframe(test_datagen, test_data, test_labels)
 
     # Cargar el modelo preentrenado
-    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(64, 64, 3))
+    base_model = VGG16(weights='imagenet', include_top=False, input_shape=(128, 128, 3))
 
     # Congelar las capas del modelo base para que no se entrenen durante la transferencia de aprendizaje
     for layer in base_model.layers:
